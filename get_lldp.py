@@ -26,7 +26,7 @@ def show_lldp_neigh(sw, crawler, f):
     '''Add lldp neighbors information to file'''
 
     try:
-        getdata = sw.show('show lldp neighbors')	
+        getdata = sw.show('show lldp neighbors')
         formatted_data = xmltodict.parse(getdata[1])
 
         new_address_list = []
@@ -61,14 +61,15 @@ def get_switch(crawler, f):
         print crawler.current_address
         xmlHostname = switch.show('show hostname')
         dictHostname = xmltodict.parse(xmlHostname[1])
-        crawler.update_hostname(dictHostname['ins_api']['outputs']['output']['body']['hostname'])     
+        crawler.update_hostname(dictHostname['ins_api']['outputs']['output']['body']['hostname'])
 
-        show_lldp_neigh(switch, crawler, f)	
+        show_lldp_neigh(switch, crawler, f)
+        return False
 
     except Exception, e:
         print "Could not connect using NXAPI, trying a screenscrape..."
-        screen_scrape(crawler, f)
-
+        error_flag = screen_scrape(crawler, f)
+        return error_flag
 
 def screen_scrape(crawler, f):
     '''Open the scraper and call functions to write output to file.'''
@@ -76,7 +77,7 @@ def screen_scrape(crawler, f):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        ssh.connect(crawler.current_address, 22, crawler.username, crawler.password, look_for_keys=False)
+        ssh.connect(crawler.current_address, 22, crawler.username, crawler.password, look_for_keys=False, timeout=5)
 
     except (paramiko.transport.socket.error,
             paramiko.transport.SSHException,
@@ -84,7 +85,7 @@ def screen_scrape(crawler, f):
             paramiko.auth_handler.AuthenticationException,
             paramiko.util.log_to_file("filename.log")):
         print 'Error connecting to SSH on %s' % crawler.current_address
-        return None
+        return True
 
     shell = ssh.invoke_shell(height=3000)
     shell.settimeout(3)
@@ -94,7 +95,7 @@ def screen_scrape(crawler, f):
     lldp_output = scraper(shell, '\nshow lldp neighbors detail\n')
 
     hostname_output = scraper(shell, '\nshow hostname\n')
-    hostname =  hostname_output.split('\n')
+    hostname = hostname_output.split('\n')
     crawler.update_hostname(hostname[1].strip())
 
     write_to_file(lldp_output, f, crawler)
@@ -118,12 +119,13 @@ def scraper(shell, command):
 
 def write_to_file(output, f, crawler):
 
+
     try:
 
         data = []
 
         for line in output.split('\n'):
-            if len(data) is 3:               
+            if len(data) is 3:              
                 new_string = data[0].strip() + ":" + data[1].strip() + ":" + data[2].strip()
                 if "not advertised" not in new_string.strip():
                     f.write(crawler.hostname + ':' + crawler.current_address + ":")
@@ -133,7 +135,7 @@ def write_to_file(output, f, crawler):
 
             res = re.match(r'(^Local Port id:\s(.*))', line)
             if res:
-                data.insert(0, res.group(2))          
+                data.insert(0, res.group(2))         
 
             res = re.match(r'(^System Name:\s(.*))', line)
             if res:

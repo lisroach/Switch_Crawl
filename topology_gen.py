@@ -23,40 +23,35 @@ import get_lldp
 import sys
 import getpass
 import l3_scrape
-from sql_grab import sql_grab
-import switch_crawl
 from Crawler import Crawler
 
 
 def topology_generator():
-	
-	username = raw_input("Username: ")
-	password = getpass.getpass("Password: ")
+    '''Creates the Crawler object and calls all the functions to fill a file with the information.'''
 
-	try:
+    username = raw_input("Username: ")
+    password = getpass.getpass("Password: ")
+
+    try:
 			
-		with open('neighbors.txt', 'w') as working_file:
+        with open('neighbors.txt', 'w') as working_file:
+            ip_address = raw_input("Please enter your starting IP address: ")
 
-			#this will grab the ip addresses from a SQL database
-			#address_list = sql_grab(username, password)
+            crawler = Crawler(ip_address, username, password)
 
-			ip_address = raw_input("Please enter your starting IP address: ")
+            for address in crawler.address_list:
+                crawler.update_address(address)
+                err_flag = get_lldp.get_switch(crawler, working_file)
+                if not err_flag:
+                	l3_scrape.bgpcreation(crawler, working_file)
 
-			crawler = Crawler(ip_address, username, password)
+            print "\nScript complete! Check the 'neighbors.txt' file that has been generated.\n"
 
-			for address in crawler.address_list:
-				crawler.update_address(address)
-				address_list = get_lldp.get_switch(crawler, working_file)
-				l3_scrape.bgpcreation(crawler, working_file)
+    except IOError, e:
+        print e
 
-			print "\nScript complete! Check the 'neighbors.txt' file that has been generated.\n"
+    except (KeyboardInterrupt, SystemExit):
+        raise
 
-	except IOError, e:
-		print e
-
-	except (KeyboardInterrupt, SystemExit):
-		raise
-	
-	
 if __name__ == "__main__":
-	topology_generator()
+    topology_generator()

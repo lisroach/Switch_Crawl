@@ -17,7 +17,7 @@ def createtheGoods(crawler, f):
 	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 	try:
 		ssh.connect(crawler.current_address, 22, crawler.username, crawler.password, 
-			look_for_keys=False)
+			look_for_keys=False, timeout=5)
 	except (paramiko.transport.socket.error,
         paramiko.transport.SSHException,
         paramiko.transport.socket.timeout,
@@ -25,7 +25,7 @@ def createtheGoods(crawler, f):
         paramiko.util.log_to_file("filename.log")):
 		print 'Error connecting to SSH on %s' % crawler.current_address
 		return None
-	#print "I connected"
+
 	shell = ssh.invoke_shell()
 	shell.settimeout(3)
 	bgpoutput = getL3(shell, '\nshow ip bgp summ | b Neigh\n')
