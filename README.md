@@ -27,8 +27,9 @@ Darius Carrier & Lisa Roach
 How to run: 
 ---------
 python topology.py
-You will be required to enter the username and password for your switches. 
-It is assumed the username and password are consistent in the environment.
+
+You will be required to enter the username and password for your switches, as well as your initial switch mgmt ip address. 
+It is assumed the username and password are consistent in the environment, but the script will crawl through all of your switches to find the connected management IP addresses. 
 
 Contact info: 
 ----------
