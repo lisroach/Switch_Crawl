@@ -10,6 +10,14 @@ Result:
 ---------
 A file named "neighbors.txt" containing all LLDP and BGP neighbors
 
+<LLDP>
+
+current hostname:current mgmt_ip:local port:neighbor hostname:neighbor mgmt_ip:neighbor port
+
+<BGP>
+
+current mgmt_ip:AS:time up
+
 
 Authors: 
 --------
