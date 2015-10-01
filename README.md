@@ -3,7 +3,7 @@ Project: Neighbors
 Purpose:
 -------
 Discover all layer 1 (with LLDP) and Layer 3 (with BGP) neighbors in a topology.
-Requirements: Switches running NX-OS with the NX-API. A file called mgmtIPs.txt containing all management IPs of devices in your network.
+Requirements: Starting management IP. 
 
 
 Result:
