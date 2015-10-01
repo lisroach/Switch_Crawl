@@ -102,6 +102,7 @@ def screen_scrape(crawler, f):
 
 
 def scraper(shell, command):
+    '''Launch the screenscraper'''
 
     try:
         shell.send(command.strip() + '\n')
@@ -118,7 +119,7 @@ def scraper(shell, command):
         raise
 
 def write_to_file(output, f, crawler):
-
+   '''Write the information to the working file and extend the address list'''
 
     try:
 
